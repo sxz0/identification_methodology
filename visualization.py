@@ -48,7 +48,7 @@ warnings.filterwarnings("ignore")
 n_samples_device = 200#400  # GPU int(10000) #CPU
 datasets = os.listdir("datatests")
 
-f = "feat/stability_test_loren_4min_2.csv"#stability_test_loren_4min_active_sleep.csv"#stability_test_loren_long.csv"
+f = "feat/stability_test_4min_2.csv"
 
 colors = {'1': "b", '2': "g", '3': "c", '4': "r", '5': "m"}
 
