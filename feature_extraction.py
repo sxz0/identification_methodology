@@ -29,7 +29,7 @@ n_devices=5
 datasets=os.listdir("datatests")
 n_samples_device = 800 #10000
 
-f = "feat/stability_test_loren_4min_2.csv"#stability_test_loren_long.csv"
+f = "feat/stability_test_4min_2.csv"#stability_test_loren_long.csv"
 datasets=[f]
 window=5
 for f in datasets:
