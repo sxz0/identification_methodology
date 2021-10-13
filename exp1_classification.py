@@ -14,7 +14,7 @@ from sklearn.manifold import TSNE
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.metrics import f1_score, classification_report, confusion_matrix
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import precision_recall_fscore_support as score
+from sklearn.metrics import precision_recall_fscore_support as score,recall_score
 from sklearn.preprocessing import RobustScaler, MinMaxScaler, QuantileTransformer, StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -35,7 +35,7 @@ n_recursive_windows=10
 jump=10
 initial_window=window
 test_size=0.40
-feat_list=[1,4,5,6]
+feat_list=[1,4,6]
 n_feat_selec=15
 model="3_"
 model_2="4_"
@@ -128,11 +128,11 @@ print(X_train.shape)
 
 rf = RandomForestClassifier(n_estimators = 100,bootstrap=False,n_jobs=6,random_state=42)
 #rf=ExtraTreesClassifier(n_estimators=500)
-#rf = DecisionTreeClassifier()
-#rf = XGBClassifier()#max_depth= 20, learning_rate= 0.1, gamma= 0.01, colsample_bytree= 0.5)
-#rf = KNeighborsClassifier(n_neighbors=15)
-#rf = GaussianNB()
-#rf= svm.SVC(kernel='rbf')
+dt = DecisionTreeClassifier()
+xg = XGBClassifier()#max_depth= 20, learning_rate= 0.1, gamma= 0.01, colsample_bytree= 0.5)
+knn = KNeighborsClassifier(n_neighbors=15)
+nb = GaussianNB()
+svm= svm.SVC(kernel='linear')
 
 #rf=VotingClassifier([('rf',RandomForestClassifier(n_estimators = 500)), ('et',ExtraTreesClassifier(n_estimators=500)),
                      #('xg',XGBClassifier())],n_jobs=6,voting="hard")#max_depth= 20, learning_rate= 0.1, gamma= 0.01, colsample_bytree= 0.5))])
@@ -151,7 +151,59 @@ array=array.round(2)
 df_cm = pd.DataFrame(array)
 plt.figure(figsize = (35,35))
 sn.heatmap(df_cm, annot=True, cmap='Blues', fmt='g',xticklabels=rf.classes_, yticklabels=rf.classes_)
+plt.yticks(rotation=0)
 plt.show()
+
+scc=StandardScaler()
+scc.fit(X_train)
+X_train_alg=scc.transform(X_train)
+X_test_alg=scc.transform(X_test)
+
+
+i=0
+
+for p in [rf,dt,xg]:
+    p.fit(X_train,y_train)
+    pred = p.predict(X_test)
+    rec=recall_score(y_test,pred,average=None)
+    if (i==0):
+        plt.plot(rec, color="g", label="Random Forest", marker="D")
+    if (i==1):
+        plt.plot(rec, color="y", label="Decision Tree", marker="s")
+    if(i==2):
+        plt.plot(rec, color="r", label="XGBoost", marker="*")
+    i+=1
+    print(i)
+    print(p.score(X_test,y_test))
+    print(rec)
+
+
+for p in [nb,svm,knn]:
+    p.fit(X_train_alg,y_train)
+    pred = p.predict(X_test_alg)
+    rec=recall_score(y_test,pred,average=None)
+    if (i==3):
+        plt.plot(rec, color="m", label="Naive Bayes", marker="v")
+    if (i==4):
+        plt.plot(rec, color="c", label="SVM", marker=".")
+    if (i==5):
+        plt.plot(rec, color="b", label="k-NN", marker="o")
+    i+=1
+    print(i)
+    print(p.score(X_test_alg,y_test))
+    print(rec)
+
+
+plt.xticks(range(20),["RPi3 1","RPi3 2","RPi3 3","RPi3 4","RPi3 5","RPi3 6","RPi3 7","RPi3 8","RPi3 9","RPi3 10",
+                        "RPi4 1","RPi4 2","RPi4 3","RPi4 4","RPi4 5","RPi4 6","RPi4 7","RPi4 8","RPi4 9","RPi4 10"])
+plt.ylabel("Accuracy")
+plt.legend(prop={'size': 10})
+plt.ylim(0,1.05)
+plt.rc('xtick', labelsize=50)
+plt.rc('ytick', labelsize=50)
+plt.show()
+
+"""
 
 feat_labels=X_train.columns
 importances=rf.feature_importances_
@@ -179,3 +231,4 @@ plt.figure(figsize = (35,35))
 plt.yticks(rotation=45)
 sn.heatmap(df_cm, annot=True, cmap='Blues', fmt='g',xticklabels=rf.classes_, yticklabels=rf.classes_)
 plt.show()
+"""
